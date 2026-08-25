@@ -7,3 +7,14 @@ requires-python = ">=3.10"
 dependencies = [
     "requests>=2.34.2",
 ]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+price-tracker = "main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["main"]
