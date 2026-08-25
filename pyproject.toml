@@ -16,5 +16,5 @@ build-backend = "setuptools.build_meta"
 price-tracker = "main:main"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
 py-modules = ["main"]
+packages = ["app"]

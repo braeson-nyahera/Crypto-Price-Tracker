@@ -2,19 +2,19 @@ import argparse
 import sys
 import requests
 
-from pipeline.extract import extract_data
-from pipeline.transform import transform_data
-from pipeline.output import output_data
+from app.extract import extract_data
+from app.transform import transform_data
+from app.output import output_data
 
-def run_pipeline(symbols: list[str], output: str) -> None:
+def run_pipeline(symbols: list[str], output: str, currency: str) -> None:
     print(f"[extract]  Fetching prices for {', '.join(symbols)} ...")
     raw = extract_data(symbols)
 
     print("[transform]  Enriching extracted data ...")
-    transformed_data = transform_data(raw)
+    transformed_data = transform_data(raw, currency)
 
     print("[output]  Generating output ...")
-    output_data(transformed_data, output_form=output)
+    output_data(transformed_data, output_form=output, currency=currency)
 
     
 
@@ -31,6 +31,7 @@ def main() -> None:
         required=True
     )
     parser.add_argument("--output", default="terminal", help="Form of the output e.g json, csv, postgres")
+    parser.add_argument("--currency", default="KES", help="Local currency for crypto to be converted to!")
     args = parser.parse_args()
 
     symbols = [
@@ -41,7 +42,7 @@ def main() -> None:
     ]
 
     try:
-        run_pipeline(symbols, output=args.output)
+        run_pipeline(symbols, output=args.output, currency = args.currency)
     except requests.exceptions.RequestException as e:
         print(f"Network/API error: {e}", file=sys.stderr)
         sys.exit(1)
