@@ -10,7 +10,7 @@ def run_pipeline(symbols: list[str], output: str) -> None:
     print(f"[extract]  Fetching prices for {', '.join(symbols)} ...")
     raw = extract_data(symbols)
 
-    print("[transform]  Enriching extrcted data ...")
+    print("[transform]  Enriching extracted data ...")
     transformed_data = transform_data(raw)
 
     print("[output]  Generating output ...")

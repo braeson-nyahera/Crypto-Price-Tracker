@@ -16,6 +16,15 @@ def output_terminal(data):
         """
         print(single_output)
 
+    else:
+        print(f"""
+    --------------------------------------------------------------------
+    SYMBOL        USDT PRICE             APPROXIMATE KES (rates = {data[0]['USD/KES rates']})
+    --------------------------------------------------------------------""")
+        for value in data:
+            print(f"    {value['symbol']:<10}   $ {value['price']:<20}  Ksh {value['Approx. Price KES']}")
+        print(f"    --------------------------------------------------------------------")  
+
 def output_json(data):
     output = data
 
