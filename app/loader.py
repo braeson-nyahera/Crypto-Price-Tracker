@@ -1,7 +1,7 @@
 import csv
 import json
 import os.path
-from psycopg2 import connect, sql
+from psycopg2 import connect
 import sys
 
 from .config import DB_URL
