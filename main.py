@@ -41,9 +41,10 @@ def main() -> None:
     ]
 
     currency = args.currency.strip().upper()
+    output_format = args.output.lower()
 
     try:
-        run_pipeline(symbols, output=args.output, currency = currency)
+        run_pipeline(symbols, output=output_format, currency = currency)
     except requests.exceptions.ConnectionError as e:
         print(f"""
     Network ERROR: Unable to connect to the APIs.

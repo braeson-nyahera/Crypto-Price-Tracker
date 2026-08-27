@@ -2,16 +2,33 @@ services:
   db:
     image: postgres:18
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
-      - name=value
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
     volumes:
-    - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build:
-      context: contextPath
+      context: .
       dockerfile: Dockerfile
+    environment:
+      DB_NAME: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: 1234
+      DB_HOST: db
+    command: ["--symbol", "BTCUSDT", "--output", "postgres"]
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:

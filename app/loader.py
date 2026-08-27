@@ -3,6 +3,7 @@ import json
 import os.path
 from psycopg2 import connect
 import sys
+from datetime import datetime
 
 from .config import DB_URL
 
@@ -17,6 +18,7 @@ def output_terminal(data, currency):
     Price USDT:         $ {data[0]['price']:,.2f}
     USD/{currency} Rate:       {data[0][f'USD/{currency} rates']}
     Approx. Price {currency}:  {currency} {data[0][F'Approx. Price {currency}']:,.2f}
+    Time Extracted:     {data[0]['extracted_at']}
     --------------------------------------------------
     Source: Binance
     Status: SUCCESS
@@ -32,7 +34,10 @@ def output_terminal(data, currency):
     --------------------------------------------------------------------""")
         for value in data:
             print(f"    {value['symbol']:<10}   $ {value['price']:<20}  {currency} {value[f'Approx. Price {currency}']:,.2F}")
-        print(f"    --------------------------------------------------------------------")  
+        print(f"""
+    --------------------------------------------------------------------
+        Time Extracted: {data[0]['extracted_at']}
+    """)  
 
 def output_json(data):
     output_path = os.path.abspath("output.json")
@@ -64,15 +69,15 @@ def output_postgres(data, db_url, currency):
                         price_in_$ NUMERIC(20, 8) NOT NULL,
                         {currency}_exchange_rate NUMERIC(20, 8) NOT NULL,
                         approximate_price_in_{currency} NUMERIC(20, 8) NOT NULL,
-                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                        extracted_at TIMESTAMP NOT NULL DEFAULT NOW()
                     )
                     """
                 )
                 cursor.executemany(
                     f"""
                     INSERT INTO crypto_prices_in_{currency}
-                        (symbol, price_in_$, {currency}_exchange_rate, approximate_price_in_{currency})
-                    VALUES (%s, %s, %s, %s)
+                        (symbol, price_in_$, {currency}_exchange_rate, approximate_price_in_{currency}, extracted_at)
+                    VALUES (%s, %s, %s, %s, %s)
                     """,
                     [
                         (
@@ -80,13 +85,14 @@ def output_postgres(data, db_url, currency):
                             item["price"],
                             item[f"USD/{currency} rates"],
                             item[f"Approx. Price {currency}"],
+                            datetime.fromisoformat(item["extracted_at"])
                         )
                         for item in data
                     ],
                 )
         print(f"PostgreSQL output written successfully ({len(data)} rows).")
     except Exception as error:
-        print(f"PostgreSQL connection or write failed: {error}",file=sys.stderr)
+        print(f"PostgreSQL connection or write failed: {error}")#,file=sys.stderr)
         sys.exit(1)
 
 def output_data(data, output_form, currency):
@@ -98,3 +104,6 @@ def output_data(data, output_form, currency):
         output_csv(data)
     elif output_form == 'postgres':
         output_postgres(data, db_url = DB_URL, currency=currency)
+    else:
+        print("ERROR: Output format not recognized")
+        sys.exit(1)
