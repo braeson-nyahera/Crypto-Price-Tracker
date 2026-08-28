@@ -25,7 +25,15 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: 1234
       DB_HOST: db
-    command: ["--symbol", "BTCUSDT", "--output", "postgres"]
+    command:
+      [
+        "--symbol",
+        "${symbols:-BTCUSDT}",
+        "--currency",
+        "${currency:-KES}",
+        "--output",
+        "${output:-postgres}",
+      ]
     depends_on:
       db:
         condition: service_healthy

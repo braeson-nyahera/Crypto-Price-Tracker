@@ -1,13 +1,26 @@
 FROM python:3.10-slim-trixie
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+LABEL owner="Braeson Nyahera" \
+	  version="1.0.0" \
+	  description="Binance Crypto prices extraction ETL"
+
+COPY --from=ghcr.io/astral-sh/uv:0.8.14 /uv /uvx /bin/
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock .python-version main.py  ./
+ENV PYTHONDONTWRITEBYTECODE=1 \
+	PYTHONUNBUFFERED=1 \
+	UV_COMPILE_BYTECODE=1 \
+	UV_LINK_MODE=copy \
+	PATH="/app/.venv/bin:$PATH"
 
+COPY pyproject.toml uv.lock .python-version ./
+
+RUN uv sync --frozen --no-dev --no-install-project
+
+COPY main.py ./
 COPY app ./app
 
-RUN uv sync --frozen 
+RUN uv sync --frozen --no-dev
 
-ENTRYPOINT ["uv", "run", "price-tracker"]
+ENTRYPOINT ["price-tracker"]

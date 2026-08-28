@@ -1,6 +1,6 @@
 import csv
 import json
-import os.path
+import os
 from psycopg2 import connect
 import sys
 from datetime import datetime
@@ -40,22 +40,24 @@ def output_terminal(data, currency):
     """)  
 
 def output_json(data):
-    output_path = os.path.abspath("output.json")
+    os.makedirs("data", exist_ok = True )
+    output_path = os.path.abspath("data/output.json")
     with open(output_path, "w") as output_file:
         json.dump(data, output_file, indent=2)
 
-    print(f"JSON file successfully created at: {output_path}")
+    print(f"JSON file successfully created at: data/output.json ")
 
 def output_csv(data):
+    os.makedirs("data", exist_ok = True)
     fieldnames = data[0].keys()
-    output_path = os.path.abspath('output.csv')
+    output_path = os.path.abspath('data/output.csv')
 
     with open(output_path, "w", newline="") as output_file:
         writer = csv.DictWriter(output_file, fieldnames=fieldnames)
         writer.writeheader() 
         writer.writerows(data)
 
-    print(f"CSV file successfully created at: {output_path}")
+    print(f"CSV file successfully created at: data/output.csv ")
 
 def output_postgres(data, db_url, currency):
     try:
@@ -90,11 +92,15 @@ def output_postgres(data, db_url, currency):
                         for item in data
                     ],
                 )
+        conn.commit()
+
+        cursor.close()
+        conn.close()
         print(f"PostgreSQL output written successfully ({len(data)} rows).")
     except Exception as error:
-        print(f"PostgreSQL connection or write failed: {error}")#,file=sys.stderr)
+        print(f"PostgreSQL connection or write failed: {error}",file=sys.stderr)
         sys.exit(1)
-
+            
 def output_data(data, output_form, currency):
     if output_form == "terminal":
         output_terminal(data, currency)
