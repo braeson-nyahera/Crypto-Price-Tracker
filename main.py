@@ -45,6 +45,11 @@ def main() -> None:
 
     try:
         run_pipeline(symbols, output=output_format, currency = currency)
+    except requests.exceptions.Timeout:
+        print("""
+    Network ERROR: The API request timed out.
+    The service may be temporarily slow or unavailable. Please try again.""")
+        sys.exit(1)
     except requests.exceptions.ConnectionError as e:
         print(f"""
     Network ERROR: Unable to connect to the APIs.
