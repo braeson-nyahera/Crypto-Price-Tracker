@@ -220,3 +220,6 @@ The pipeline exits with a clear message when:
 ---
 
 ## License
+
+This project is licensed under the [MIT License](LICENSE).
+
